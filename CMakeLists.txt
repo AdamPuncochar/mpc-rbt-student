@@ -59,6 +59,20 @@ install(TARGETS keyboard_control DESTINATION lib/${PROJECT_NAME})
 # *      Lab 05_localization
 # * * * * * * * * * * * * * * * * *
 
+add_executable(localization src/localization_node.cpp)
+add_library(localization_lib SHARED src/Localization.cpp)
+
+ament_target_dependencies(localization_lib ${dependencies})
+target_link_libraries(localization localization_lib)
+
+install(TARGETS
+  localization
+  localization_lib
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION lib/${PROJECT_NAME}
+)
+
 # * * * * * * * * * * * * * * * * *
 # *      Lab 06_planning
 # * * * * * * * * * * * * * * * * *
