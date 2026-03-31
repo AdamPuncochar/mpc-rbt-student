@@ -3,10 +3,14 @@
 
 #include <vector>
 #include <algorithm>
-#include <math.h>
+#include <cmath>
+#include <memory>
+#include <limits>
 
 #include "rclcpp/rclcpp.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
 #include "nav_msgs/msg/occupancy_grid.hpp"
+#include "nav_msgs/msg/path.hpp"
 #include "nav_msgs/srv/get_map.hpp"
 #include "nav_msgs/srv/get_plan.hpp"
 
@@ -25,11 +29,14 @@ public:
 
 private:
     // Parameters
-    // TO DO
+    int obstacle_threshold_ = 50;
+    int dilation_radius_ = 5;
+    bool map_ready_ = false;
 
     // Callbacks
     void mapCallback(rclcpp::Client<nav_msgs::srv::GetMap>::SharedFuture future);
-    void planPath(const std::shared_ptr<nav_msgs::srv::GetPlan::Request> request, std::shared_ptr<nav_msgs::srv::GetPlan::Response> response);
+    void planPath(const std::shared_ptr<nav_msgs::srv::GetPlan::Request> request,
+                  std::shared_ptr<nav_msgs::srv::GetPlan::Response> response);
 
     // Clients
     rclcpp::Client<nav_msgs::srv::GetMap>::SharedPtr map_client_;
@@ -42,8 +49,16 @@ private:
 
     // Methods
     void dilateMap();
-    void aStar(const geometry_msgs::msg::PoseStamped &start, const geometry_msgs::msg::PoseStamped &goal);
+    void aStar(const geometry_msgs::msg::PoseStamped &start,
+               const geometry_msgs::msg::PoseStamped &goal);
     void smoothPath();
+
+    bool isInside(int x, int y) const;
+    bool isFree(int x, int y) const;
+    int index(int x, int y) const;
+    bool worldToMap(double wx, double wy, int &mx, int &my) const;
+    void mapToWorld(int mx, int my, double &wx, double &wy) const;
+    float heuristic(int x1, int y1, int x2, int y2) const;
 
     // Data
     nav_msgs::msg::OccupancyGrid map_;

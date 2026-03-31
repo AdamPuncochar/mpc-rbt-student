@@ -37,6 +37,7 @@ set(dependencies
         tf2_ros
         tf2_geometry_msgs
         mpc_rbt_simulator
+        geometry_msgs
 )
 
 add_library(${PROJECT_NAME} SHARED src/KeyboardControl.cpp)
@@ -48,16 +49,11 @@ install(TARGETS ${PROJECT_NAME}
         RUNTIME DESTINATION bin)
 
 # Build and install executables
-# * * * * * * * * * * * * * * * * *
-# *      Lab 04_keyboard_control
-# * * * * * * * * * * * * * * * * *
+
 add_executable(keyboard_control src/keyboard_control_node.cpp)
 target_link_libraries(keyboard_control ${PROJECT_NAME})
 install(TARGETS keyboard_control DESTINATION lib/${PROJECT_NAME})
 
-# * * * * * * * * * * * * * * * * *
-# *      Lab 05_localization
-# * * * * * * * * * * * * * * * * *
 
 add_executable(localization src/localization_node.cpp)
 add_library(localization_lib SHARED src/Localization.cpp)
@@ -73,9 +69,26 @@ install(TARGETS
   RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
-# * * * * * * * * * * * * * * * * *
-# *      Lab 06_planning
-# * * * * * * * * * * * * * * * * *
+add_executable(planning src/planning_node.cpp)
+add_library(planning_lib SHARED src/Planning.cpp)
+
+ament_target_dependencies(planning_lib ${dependencies})
+target_link_libraries(planning planning_lib)
+
+install(TARGETS
+  planning
+  planning_lib
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION lib/${PROJECT_NAME}
+)
+add_executable(plan_goal_cli src/plan_goal_cli.cpp)
+ament_target_dependencies(plan_goal_cli ${dependencies})
+
+install(TARGETS
+  plan_goal_cli
+  DESTINATION lib/${PROJECT_NAME}
+)
 
 # * * * * * * * * * * * * * * * * *
 # *       Lab 07_control
